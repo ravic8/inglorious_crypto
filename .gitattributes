@@ -1,2 +1,0 @@
-target/debug/consumer filter=lfs diff=lfs merge=lfs -text
-target/debug/deps/* filter=lfs diff=lfs merge=lfs -text

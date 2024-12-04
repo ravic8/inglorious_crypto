@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "src/fetcher",
+    "src/producer",
+    "src/consumer",
+]

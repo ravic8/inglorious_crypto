@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+
+zookeeper:
+  image: zookeeper:3.7.0
+  container_name: zookeeper-btcustd
+  environment:
+    ZOO_MY_ID: 1
+    ZOO_SERVICES: server.1=zookeeper:2888:3888
+  ports:
+    - "2181:2181"
+
+kafka:
+  image: bitnami/kafka:3.4.0
+  container_name: kafka-btcustd
+  depends on: 
+    - zookeeper-btcustd
+  environment:
+    KAKFA_BROKER_ID: 1
+    KAFKA_ZOOKEEPER_CONNECT: "zookeeper-btcustd:2181"
+    KAKKA_LISTENERS: PLAINTEXT://:9092
+    KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-btcustd:9092
+    ALLOW_PLAINTEXT_LISTENER: "yes"
+  ports:
+    - "9092:9092"
+
+questdb:
+  image: questdb/questdb:6.7.2
+  container_name: questdb
+  ports:
+    - "9000:9000"  # HTTP Web Console
+    - "8812:8812"  # PostgreSQL (PGWire)
+    - "9009:9009"  # ILP Protocol
+  volumes:
+      - questdb-data:/root/.questdb/db
+
+volumes:
+  questdb-data:
+
+  

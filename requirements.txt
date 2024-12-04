@@ -1,0 +1,4 @@
+# Optional dependencies for monitoring or testing (use only if needed)
+websockets==10.4  # For testing Binance WebSocket
+kafka-python==2.0.2  # For testing or debugging Kafka topics
+psycopg2==2.9.6  # For testing QuestDB via PostgreSQL

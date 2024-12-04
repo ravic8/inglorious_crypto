@@ -1,0 +1,27 @@
+# Compiled files
+target/
+
+# Backup files
+*~
+*.bak
+*.swp
+
+# Dependency directories
+/vendor/
+
+# IDE / editor specific files
+.idea/
+.vscode/
+*.iml
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Cargo lock file should be ignored for libraries
+# but kept for binaries (optional)
+Cargo.lock
+
+# Rust debugging files
+.cargo/config
+

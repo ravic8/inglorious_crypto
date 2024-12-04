@@ -108,7 +108,6 @@ SELECT * FROM btc_usdt_trades;
 
 Here’s an overview of the project directory:
 
-bash
 inglorious_crypto/
 ├── docker/                     # Docker-related files for Kafka, Zookeeper, QuestDB
 │   └── docker-compose.yml

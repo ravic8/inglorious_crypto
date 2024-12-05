@@ -108,18 +108,7 @@ SELECT * FROM btc_usdt_trades;
 
 Here’s an overview of the project directory:
 
-inglorious_crypto/
-├── docker/                     # Docker-related files for Kafka, Zookeeper, QuestDB
-│   └── docker-compose.yml
-├── src/
-│   ├── fetcher/                # WebSocket data fetching and publishing to Kafka
-│   ├── producer/               # Kafka producer logic
-│   └── consumer/               # Kafka consumer and QuestDB insertion logic
-├── target/                     # Compiled project files (ignored in Git)
-├── .gitignore                  # Git ignore file for excluding unnecessary files
-├── Cargo.toml                  # Rust package configuration file
-└── README.md                   # This readme file 
-
+<img width="688" alt="image" src="https://github.com/user-attachments/assets/a47d5c15-73bd-4b0d-8db1-6d720801f3ab">
 
 ### File Descriptions
 

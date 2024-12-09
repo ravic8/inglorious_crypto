@@ -9,25 +9,40 @@ use url::Url;
 use std::sync::Arc;
 use webpki_roots::TLS_SERVER_ROOTS;
 
-// WebSocket URL for Binance trades
-const BINANCE_WS_URL: &str = "wss://stream.binance.com:9443/ws/btcusdt@trade";
+// WebSocket URL for Binance Kline
+const BINANCE_WS_URL: &str = "wss://stream.binance.com:9443/ws/btcusdt@kline_1s";
 
 // Kafka Configuration
 const KAFKA_BROKER: &str = "localhost:9092";
-const KAFKA_TOPIC: &str = "btc-usdt";
+const KAFKA_TOPIC: &str = "btc-usdt-kline";
 
-// Define the structure of trade data
 #[derive(Debug, Serialize, Deserialize)]
-struct BinanceTrade {
-    e: String,    // Event type
+struct KlinePayload {
+    e: String,  // Event type
     #[serde(rename = "E")]
     event_time: u64, // Event time
-    s: String,    // Symbol
-    p: String,    // Price
-    q: String,    // Quantity
-    #[serde(rename = "T")]
-    trade_time: u64, // Trade time
-    m: bool,      // Is buyer the market maker?
+    s: String,  // Symbol
+    k: KlineData, // Kline data
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct KlineData {
+    t: u64,  // Kline start time
+    T: u64,  // Kline close time
+    s: String,  // Symbol
+    i: String,  // Interval
+    f: u64,  // First trade ID
+    L: u64,  // Last trade ID
+    o: String,  // Open price
+    c: String,  // Close price
+    h: String,  // High price
+    l: String,  // Low price
+    v: String,  // Base asset volume
+    n: u64,  // Number of trades
+    x: bool,  // Is this kline closed?
+    q: String,  // Quote asset volume
+    V: String,  // Taker buy base asset volume
+    Q: String,  // Taker buy quote asset volume
 }
 
 #[tokio::main]
@@ -69,18 +84,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Listen for messages from the WebSocket
     while let Some(msg) = read.try_next().await? {
         if let Ok(text) = msg.into_text() {
-            // Parse the JSON message into the BinanceTrade struct
-            if let Ok(trade) = serde_json::from_str::<BinanceTrade>(&text) {
-                println!("Received trade: {:?}", trade);
+            // Parse the JSON message into the KlinePayload struct
+            if let Ok(kline_payload) = serde_json::from_str::<KlinePayload>(&text) {
+                println!("Received Kline data: {:?}", kline_payload);
 
-                // Serialize trade data into JSON
-                if let Ok(payload) = serde_json::to_string(&trade) {
-                    // Publish the JSON payload to Kafka
+                // Serialize the Kline payload into JSON and send it to Kafka
+                if let Ok(payload) = serde_json::to_string(&kline_payload) {
                     let delivery_status = producer
                         .send(
                             FutureRecord::to(KAFKA_TOPIC)
                                 .payload(&payload)
-                                .key("btc-trade"),
+                                .key(&kline_payload.s),
                             std::time::Duration::from_secs(0),
                         )
                         .await;
@@ -91,7 +105,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                 }
             } else {
-                eprintln!("Failed to parse trade message: {}", text);
+                eprintln!("Failed to parse Kline message: {}", text);
             }
         }
     }

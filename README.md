@@ -92,22 +92,23 @@ The project has three main components that need to run simultaneously: Fetcher, 
 
 To verify that the data is being inserted into QuestDB, open the QuestDB web interface:
    
-http://localhost:9000```
+http://localhost:9000
 
 Log in with the default credentials:
 
-Username: admin
-Password: quest
+- **Username**: `admin`
+- **Password**: `quest`
 
 Once logged in, run the following query to see the inserted data:
 
-SELECT * FROM btc_usdt_trades
+sql
+SELECT * FROM btc_usdt_trades;
 
 ## Directory Structure
 
 Here’s an overview of the project directory:
 
-```bash
+bash
 inglorious_crypto/
 ├── docker/                     # Docker-related files for Kafka, Zookeeper, QuestDB
 │   └── docker-compose.yml

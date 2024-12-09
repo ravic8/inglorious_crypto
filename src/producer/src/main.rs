@@ -67,10 +67,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 if let Some(payload) = msg.payload_view::<str>() {
                     match payload {
                         Ok(raw_json) => {
-                            // Parse the Kafka message into a KlinePayload struct
+                            // Parse the Kafka message into KlinePayload struct
                             if let Ok(kline_payload) = serde_json::from_str::<KlinePayload>(raw_json) {
-                                let k = kline_payload.k.clone(); // Clone the 'k' field
+                                let k = kline_payload.k.clone(); // Clone the kline data
                                 
+                                // Add fetcher_processed_time and kafka_publish_time
+                                let fetcher_processed_time = kline_payload.event_time; // Use the actual event time from the payload
+                                let kafka_publish_time = Utc::now().timestamp_millis(); // Capture the time when publishing to Kafka
+                                let questdb_insert_time = Utc::now().timestamp_millis(); // Capture the time just before inserting into QuestDB
+
+
                                 let formatted_timestamp = NaiveDateTime::from_timestamp_millis(kline_payload.event_time as i64)
                                     .unwrap_or_else(|| Utc::now().naive_utc())
                                     .format("%Y-%m-%d %H:%M:%S")
@@ -78,14 +84,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                                 // Insert the structured data into QuestDB
                                 let insert_query = format!(
-                                    "INSERT INTO btc_usdt_kline (event_time, event_type, symbol, kline_start_time, kline_close_time, formatted_time, interval, first_trade_id, last_trade_id, open_price, close_price, high_price, low_price, base_asset_volume, number_of_trades, is_closed, quote_asset_volume, taker_buy_base_volume, taker_buy_quote_volume) \
-    VALUES ({}, '{}', '{}', {}, {}, '{}', '{}', {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {});",
-                                    kline_payload.event_time,  
-                                    kline_payload.e,
-                                    kline_payload.s,
-                                    k.t,  // Kline start time
-                                    k.T,  // Kline close time
-                                    formatted_timestamp, // Formatted timestamp
+                                    "INSERT INTO btc_usdt_kline (event_time, fetcher_processed_time, kafka_publish_time, questdb_insert_time, formatted_time, kline_start_time, kline_close_time, symbol, interval, first_trade_id, last_trade_id, open_price, close_price, high_price, low_price, base_asset_volume, number_of_trades, is_closed, quote_asset_volume, taker_buy_base_volume, taker_buy_quote_volume) \
+                                    VALUES ({}, {}, {}, {}, '{}', {}, {}, '{}', '{}', {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {});",
+                                    kline_payload.event_time,
+                                    fetcher_processed_time,
+                                    kafka_publish_time,
+                                    questdb_insert_time,
+                                    formatted_timestamp,
+                                    k.t,
+                                    k.T,
+                                    k.s,
                                     k.i,
                                     k.f,
                                     k.L,
@@ -98,7 +106,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     k.x,
                                     k.q.parse::<f64>().unwrap_or(0.0),
                                     k.V.parse::<f64>().unwrap_or(0.0),
-                                    k.Q.parse::<f64>().unwrap_or(0.0),
+                                    k.Q.parse::<f64>().unwrap_or(0.0)
                                 );
 
                                 if let Err(e) = client.execute(&insert_query, &[]).await {

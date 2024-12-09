@@ -8,6 +8,7 @@ use tokio_tungstenite::{client_async, tungstenite::Error};
 use url::Url;
 use std::sync::Arc;
 use webpki_roots::TLS_SERVER_ROOTS;
+use chrono::Utc;
 
 // WebSocket URL for Binance Kline
 const BINANCE_WS_URL: &str = "wss://stream.binance.com:9443/ws/btcusdt@kline_1s";
@@ -54,6 +55,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .create()?;
 
     println!("Kafka producer created. Connecting to Binance WebSocket...");
+    
 
     // Set up TLS configuration for WebSocket
     let mut root_cert_store = rustls::RootCertStore::empty();
@@ -87,6 +89,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             // Parse the JSON message into the KlinePayload struct
             if let Ok(kline_payload) = serde_json::from_str::<KlinePayload>(&text) {
                 println!("Received Kline data: {:?}", kline_payload);
+                
+                // Add fetcher_processed_time (current timestamp)
+                let fetcher_processed_time = Utc::now().timestamp_millis();
+                
+                // Prepare payload with latency metadata
+                let payload_with_latency = serde_json::json!({
+                    "event_time": kline_payload.event_time, // Original event time
+                    "fetcher_processed_time": fetcher_processed_time, // Fetcher processing time
+                    "kline_data": kline_payload.k // Include the kline data
+                });
+                
 
                 // Serialize the Kline payload into JSON and send it to Kafka
                 if let Ok(payload) = serde_json::to_string(&kline_payload) {

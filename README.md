@@ -45,7 +45,7 @@ Before running the project, ensure you have the following installed:
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/yourusername/inglorious_crypto.git
+   git clone https://github.com/tylerd0211/inglorious_crypto.git
    cd inglorious_crypto
 
 2. **Set up Docker containers**:

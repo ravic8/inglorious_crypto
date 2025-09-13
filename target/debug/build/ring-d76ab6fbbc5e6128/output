@@ -1,3 +1,0 @@
-cargo:rustc-link-lib=static=ring-core
-cargo:rustc-link-lib=static=ring-test
-cargo:rustc-link-search=native=/data-sdb/inglorious_crypto/target/debug/build/ring-d76ab6fbbc5e6128/out

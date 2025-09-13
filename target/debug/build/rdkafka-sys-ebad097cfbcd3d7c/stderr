@@ -1,5 +1,0 @@
-librdkafka will be linked dynamically
-librdkafka found on the system:
-  Name: ["rdkafka"]
-  Path: ["/usr/lib/x86_64-linux-gnu"]
-  Version: 2.3.0

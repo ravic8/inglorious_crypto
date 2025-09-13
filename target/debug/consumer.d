@@ -1,1 +1,1 @@
-/data-sdb/inglorious_crypto/target/debug/consumer: /data-sdb/inglorious_crypto/src/consumer/src/main.rs
+/media/inglorious/ds/chain8/inglorious_crypto/target/debug/consumer: /media/inglorious/ds/chain8/inglorious_crypto/src/consumer/src/main.rs /media/inglorious/ds/chain8/inglorious_crypto/src/obsv/src/lib.rs

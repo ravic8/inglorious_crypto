@@ -1,0 +1,12 @@
+[package]
+name = "obsv"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# Metrics 0.24 style: counter!("x").increment(1), histogram!("y").record(v), gauge!("z").set(v)
+metrics = "0.24"
+metrics-exporter-prometheus = { version = "0.17", features = ["http-listener"] }
+
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt", "time", "json"] }
